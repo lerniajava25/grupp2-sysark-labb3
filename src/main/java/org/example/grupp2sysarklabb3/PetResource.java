@@ -7,9 +7,13 @@ import jakarta.ws.rs.core.Response;
 
 @Path("/pets")
 public class PetResource {
+    private final petService petService;
 
     @Inject
-    private PetService petService;
+   public PetResource(PetService petService){
+    this.petService = petService;
+    }
+}
 
     @PUT
     @Path("/{id}/play")
