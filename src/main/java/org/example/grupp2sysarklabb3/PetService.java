@@ -19,7 +19,13 @@ public class PetService {
     }
 
     public PetDTO viewPetStatus(Long petId) {
-        return null;
+        PetDTO pet = pets.get(petId);
+
+        if (pet == null){
+            throw new NotFoundException("Status can't be shown: ID: " + petId + " not found");
+        }
+
+        return pet;
     }
 
     public void feedPet(Long petId) {
@@ -29,7 +35,7 @@ public class PetService {
             PetDTO pet = pets.get(petId);
 
             if (pet == null){
-                throw new NotFoundException("No pet with id " + petId + " Could be found!");
+                throw new NotFoundException("Cannot feed pet: ID: " + petId + " not found");
             }
 
             int currentHungerLevel = pet.hungerLevel();
