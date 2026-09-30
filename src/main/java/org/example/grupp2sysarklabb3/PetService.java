@@ -1,9 +1,14 @@
 package org.example.grupp2sysarklabb3;
 
+import jakarta.ws.rs.NotFoundException;
+
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class PetService {
     private final ConcurrentHashMap<Long, PetDTO> pets = new ConcurrentHashMap<>();
+
+    private final ReentrantLock lock = new ReentrantLock();
 
     public void adoptPet(Long petId) {
 
@@ -18,7 +23,31 @@ public class PetService {
     }
 
     public void feedPet(Long petId) {
+        lock.lock();
 
+        try {
+            PetDTO pet = pets.get(petId);
+
+            if (pet == null){
+                throw new NotFoundException("No pet with id " + petId + " Could be found!");
+            }
+
+            int currentHungerLevel = pet.hungerLevel();
+
+            int newHungerLevel = Math.max(0, currentHungerLevel - 10);
+
+            PetDTO newPet = new PetDTO(
+                    pet.name(),
+                    pet.species(),
+                    newHungerLevel,
+                    pet.happiness()
+            );
+
+            pets.put(petId, newPet);
+
+        } finally {
+            lock.unlock();
+        }
     }
 
     public void playWithPet(Long petId) {
