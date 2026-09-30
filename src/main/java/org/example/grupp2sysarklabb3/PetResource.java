@@ -14,6 +14,13 @@ public class PetResource {
         this.petService = petService;
     }
 
+    @PUT
+    @Path("/{id}/feed")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response feedPet(@PathParam("id") Long id) {
+        petService.feedPet(id);
+        return Response.ok(petService.viewPetStatus(id)).build();
+    }
 
     @GET
     @Path("/{id}")
@@ -40,4 +47,5 @@ public class PetResource {
         return Response.ok(petService.viewPetStatus(id))
                 .build();
     }
+}
 
