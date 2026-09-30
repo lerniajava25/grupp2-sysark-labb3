@@ -33,3 +33,21 @@ public class PetResource {
                 .build();
     }
 
+    @DELETE
+    @Path("/{id}")
+    public Response releasePet(@PathParam("ID") Long id){
+    PetDTO pet = petService.viewPetStatus(id);
+
+    if (pet == null){
+        return Response.status(Response.Status.NOT_FOUND)
+                .entity("Pet not found")
+                .build();
+    }
+
+    petService.releasePet(id);
+
+    return Response.noContent().build();
+
+    }
+}
+

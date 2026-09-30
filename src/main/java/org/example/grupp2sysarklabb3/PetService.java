@@ -1,9 +1,11 @@
 package org.example.grupp2sysarklabb3;
 
 import java.util.concurrent.ConcurrentHashMap;
+
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.NotFoundException;
 
-
+@ApplicationScoped
 public class PetService {
     private final ConcurrentHashMap<Long, PetDTO> pets = new ConcurrentHashMap<>();
 
