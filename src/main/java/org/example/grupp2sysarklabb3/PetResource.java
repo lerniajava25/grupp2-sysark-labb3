@@ -10,7 +10,7 @@ public class PetResource {
     private final petService petService;
 
     @Inject
-   public PetResource(PetService petService){
+   public PetResource(petService petService){
     this.petService = petService;
     }
 }
