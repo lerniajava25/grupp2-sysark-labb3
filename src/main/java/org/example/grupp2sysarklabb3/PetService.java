@@ -3,6 +3,7 @@ package org.example.grupp2sysarklabb3;
 import java.util.concurrent.ConcurrentHashMap;
 import jakarta.ws.rs.NotFoundException;
 
+
 public class PetService {
     private final ConcurrentHashMap<Long, PetDTO> pets = new ConcurrentHashMap<>();
 
@@ -25,7 +26,7 @@ public class PetService {
     public void playWithPet(Long petId) {
         PetDTO pet = pets.get(petId);
         if (pet == null) {
-            throw new NotFoundException("Pet not found")
+            throw new NotFoundException("Pet not found");
         }
 
         int newHappiness = Math.min(100,pet.happiness() + 15);
