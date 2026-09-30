@@ -1,16 +1,19 @@
 package org.example.grupp2sysarklabb3;
 
+import jakarta.enterprise.context.ApplicationScoped;
+
 import java.util.concurrent.ConcurrentHashMap;
 
+@ApplicationScoped
 public class PetService {
     private final ConcurrentHashMap<Long, PetDTO> pets = new ConcurrentHashMap<>();
 
-    public void adoptPet(Long petId) {
-
+    public void adoptPet(PetDTO pet) {
+        pets.put(1L, pet);
     }
 
-    public PetDTO[] listAllPets() {
-        return new PetDTO[0];
+    public Object[] listAllPets() {
+        return pets.values().toArray();
     }
 
     public PetDTO viewPetStatus(Long petId) {
