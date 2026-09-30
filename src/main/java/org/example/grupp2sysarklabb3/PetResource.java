@@ -15,6 +15,14 @@ public class PetResource {
     }
 
 
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response viewPetStatus(@PathParam("id") Long id) {
+        PetDTO pet = petService.viewPetStatus(id);
+        return Response.ok(pet).build();
+    }
+
     @PUT
     @Path("/{id}/play")
     @Produces(MediaType.APPLICATION_JSON)

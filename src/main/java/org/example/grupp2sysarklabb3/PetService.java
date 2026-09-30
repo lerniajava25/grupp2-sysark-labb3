@@ -1,10 +1,8 @@
 package org.example.grupp2sysarklabb3;
 
 import jakarta.ws.rs.NotFoundException;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
-import jakarta.ws.rs.NotFoundException;
 
 
 public class PetService {
@@ -35,13 +33,11 @@ public class PetService {
 
         try {
             PetDTO pet = pets.get(petId);
-
             if (pet == null){
                 throw new NotFoundException("Cannot feed pet: ID: " + petId + " not found");
             }
 
             int currentHungerLevel = pet.hungerLevel();
-
             int newHungerLevel = Math.max(0, currentHungerLevel - 10);
 
             PetDTO newPet = new PetDTO(
