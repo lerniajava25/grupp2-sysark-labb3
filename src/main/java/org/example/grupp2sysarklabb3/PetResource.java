@@ -35,7 +35,7 @@ public class PetResource {
 
     @DELETE
     @Path("/{id}")
-    public Response releasePet(@PathParam("ID") Long id){
+    public Response releasePet(@PathParam("id") Long id){
     PetDTO pet = petService.viewPetStatus(id);
 
     if (pet == null){
