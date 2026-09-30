@@ -1,6 +1,7 @@
 package org.example.grupp2sysarklabb3;
 
 import jakarta.ws.rs.NotFoundException;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -21,7 +22,7 @@ public class PetService {
     public PetDTO viewPetStatus(Long petId) {
         PetDTO pet = pets.get(petId);
 
-        if (pet == null){
+        if (pet == null) {
             throw new NotFoundException("Status can't be shown: ID: " + petId + " not found");
         }
 
@@ -33,7 +34,7 @@ public class PetService {
 
         try {
             PetDTO pet = pets.get(petId);
-            if (pet == null){
+            if (pet == null) {
                 throw new NotFoundException("Cannot feed pet: ID: " + petId + " not found");
             }
 
@@ -60,7 +61,7 @@ public class PetService {
             throw new NotFoundException("Pet not found");
         }
 
-        int newHappiness = Math.min(100,pet.happiness() + 15);
+        int newHappiness = Math.min(100, pet.happiness() + 15);
         pets.put(petId, new PetDTO(
                 pet.name(),
                 pet.species(),
