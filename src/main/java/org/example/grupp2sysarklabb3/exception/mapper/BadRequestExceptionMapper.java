@@ -1,4 +1,4 @@
-package org.example.grupp2sysarklabb3;
+package org.example.grupp2sysarklabb3.exception.mapper;
 
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.core.MediaType;
