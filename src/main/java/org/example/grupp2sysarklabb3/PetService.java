@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import jakarta.ws.rs.NotFoundException;
 import java.util.concurrent.locks.ReentrantLock;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.NotFoundException;
 
 @ApplicationScoped
 public class PetService {
