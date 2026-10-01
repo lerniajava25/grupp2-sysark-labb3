@@ -1,17 +1,46 @@
 package org.example.grupp2sysarklabb3;
 
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
+
+import java.net.URI;
+import java.util.List;
 
 @Path("/pets")
 public class PetResource {
-    private final PetService petService;
+    private PetService petService;
+
+    public PetResource() {
+
+    }
 
     @Inject
     public PetResource(PetService petService) {
         this.petService = petService;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<PetDTO> getPets() {
+        return petService.listAllPets();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response postPet(@Valid CreatePetRequest req, @Context UriInfo uriInfo) {
+        PetDTO pet = petService.adoptPet(req);
+        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(pet.id())).build();
+        return Response.created(location).entity(pet).build();
     }
 
     @GET
