@@ -76,7 +76,7 @@ public class PetResource {
         return Response.ok(petService.viewPetStatus(id))
                 .build();
     }
-}
+
 
     @DELETE
     @Path("/{id}")
