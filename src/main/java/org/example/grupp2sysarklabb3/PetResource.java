@@ -43,6 +43,22 @@ public class PetResource {
         return Response.created(location).entity(pet).build();
     }
 
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response viewPetStatus(@PathParam("id") Long id) {
+        PetDTO pet = petService.viewPetStatus(id);
+        return Response.ok(pet).build();
+    }
+
+    @PUT
+    @Path("/{id}/feed")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response feedPet(@PathParam("id") Long id) {
+        petService.feedPet(id);
+        return Response.ok(petService.viewPetStatus(id)).build();
+    }
+
     @PUT
     @Path("/{id}/play")
     @Produces(MediaType.APPLICATION_JSON)
@@ -61,3 +77,4 @@ public class PetResource {
                 .build();
     }
 }
+
