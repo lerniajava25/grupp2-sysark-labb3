@@ -1,6 +1,7 @@
 package org.example.grupp2sysarklabb3;
 
 import jakarta.inject.Inject;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.GET;
@@ -32,6 +33,20 @@ public class PetResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<PetDTO> getPets() {
         return petService.listAllPets();
+    }
+
+    @GET
+    @Path("/page")
+    @Produces(MediaType.APPLICATION_JSON)
+    public PetPageResponse geyPetsPage(
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("10") int size) {
+
+        if (page < 0 || size < 1 || size < 100){
+            throw new BadRequestException(
+                    "page must be 0 or greater; size must be between 1 and 100");
+        }
+        return petService.listPets(page, size);
     }
 
     @POST
