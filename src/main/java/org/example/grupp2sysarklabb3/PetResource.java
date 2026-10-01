@@ -77,7 +77,6 @@ public class PetResource {
                 .build();
     }
 
-
     @DELETE
     @Path("/{id}")
     public Response releasePet(@PathParam("id") Long id){
