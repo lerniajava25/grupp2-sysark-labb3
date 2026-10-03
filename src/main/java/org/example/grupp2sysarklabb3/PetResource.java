@@ -30,7 +30,12 @@ public class PetResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<PetDTO> getPets() {
+    public List<PetDTO> getPets(@QueryParam("species") String species) {
+
+        if(species != null && !species.isBlank()) {
+            return petService.listFilteredPets(species);
+        }
+
         return petService.listAllPets();
     }
 

@@ -27,6 +27,13 @@ public class PetService {
         return List.copyOf(pets.values());
     }
 
+    public List<PetDTO> listFilteredPets(String species){
+        return pets.values()
+                .stream()
+                .filter(pet -> pet.species().equalsIgnoreCase(species))
+                .toList();
+    }
+
     public PetDTO viewPetStatus(Long petId) {
         PetDTO pet = pets.get(petId);
 
