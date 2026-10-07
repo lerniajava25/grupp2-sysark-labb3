@@ -32,8 +32,14 @@ public class PetResource {
 
     @GET
     public List<PetDTO> getPets(
+            @QueryParam("species") String species,
             @QueryParam("sortBy") String sortBy,
             @QueryParam("order") @DefaultValue("asc") String order) {
+
+        if (species != null && !species.isBlank()) {
+            return petService.listFilteredPets(species);
+        }
+
         if (sortBy != null && !sortBy.isBlank()) {
             return petService.listAllPetsSorted(sortBy, order);
         }
@@ -46,6 +52,7 @@ public class PetResource {
     public PetPageResponse getPetsPage(
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("10") int size) {
+
         if (page < 0 || size < 1 || size > 100) {
             throw new BadRequestException(
                     "page must be 0 or greater; size must be between 1 and 100"

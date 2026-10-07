@@ -46,6 +46,13 @@ public class PetService {
         }
     }
 
+    public List<PetDTO> listFilteredPets(String species){
+        return pets.values()
+                .stream()
+                .filter(pet -> pet.species().equalsIgnoreCase(species))
+                .toList();
+    }
+
     public List<PetDTO> listAllPetsSorted(String sortBy, String order) {
         Comparator<PetDTO> comparator = switch(sortBy.toLowerCase(Locale.ROOT)) {
             case "name" -> Comparator.comparing(PetDTO::name, String.CASE_INSENSITIVE_ORDER);
