@@ -31,7 +31,13 @@ public class PetResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<PetDTO> getPets() {
+    public List<PetDTO> getPets(
+            @QueryParam("sortBy") String sortBy,
+            @QueryParam("order") @DefaultValue("asc") String order) {
+        if(sortBy != null && !sortBy.isBlank()) {
+            return petService.listAllPetsSorted(sortBy, order);
+        }
+
         return petService.listAllPets();
     }
 
@@ -91,7 +97,6 @@ public class PetResource {
         return Response.ok(petService.viewPetStatus(id))
                 .build();
     }
-
 
     @DELETE
     @Path("/{id}")
