@@ -1,16 +1,16 @@
 package org.example.grupp2sysarklabb3;
 
 import jakarta.enterprise.context.ApplicationScoped;
+
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import java.util.concurrent.locks.ReentrantLock;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.NotFoundException;
 
 @ApplicationScoped
 public class PetService {
@@ -30,11 +30,30 @@ public class PetService {
         return List.copyOf(pets.values());
     }
 
+    public List<PetDTO> listAllPetsSorted(String sortBy, String order) {
+        Comparator<PetDTO> comparator = switch(sortBy.toLowerCase(Locale.ROOT)) {
+            case "name" -> Comparator.comparing(PetDTO::name, String.CASE_INSENSITIVE_ORDER);
+            case "species" -> Comparator.comparing(PetDTO::species, String.CASE_INSENSITIVE_ORDER);
+            case "hunger" -> Comparator.comparingInt(PetDTO::hungerLevel);
+            case "happiness" -> Comparator.comparingInt(PetDTO::happiness);
+            case "id" -> Comparator.comparingLong(PetDTO::id);
+            default -> throw new BadRequestException("Invalid sortBy field: " + sortBy);
+        };
+
+        if(order.equalsIgnoreCase("desc")) {
+            comparator = comparator.reversed();
+        }
+        return pets.values()
+                .stream()
+                .sorted(comparator)
+                .toList();
+    }
+
     public PetDTO viewPetStatus(Long petId) {
         PetDTO pet = pets.get(petId);
 
         if (pet == null) {
-            throw new NotFoundException("Status can't be shown: ID: " + petId + " not found");
+            throw new NotFoundException("Pet with ID " + petId + " not found");
         }
 
         return pet;
@@ -46,7 +65,7 @@ public class PetService {
         try {
             PetDTO pet = pets.get(petId);
             if (pet == null) {
-                throw new NotFoundException("Cannot feed pet: ID: " + petId + " not found");
+                throw new NotFoundException("Pet with ID " + petId + " not found");
             }
 
             int currentHungerLevel = pet.hungerLevel();
