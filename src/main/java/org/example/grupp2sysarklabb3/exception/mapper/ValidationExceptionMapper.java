@@ -13,12 +13,8 @@ public class ValidationExceptionMapper implements ExceptionMapper<ValidationExce
     @Override
     public Response toResponse(ValidationException exception) {
         return Response.status(Response.Status.BAD_REQUEST)
-                .entity(Map.of("error", getLastNodeName(exception.getMessage())))
+                .entity(Map.of("error", exception.getMessage()))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
-    }
-
-    private static String getLastNodeName(String path) {
-        return path.substring(path.lastIndexOf('.') + 1);
     }
 }
