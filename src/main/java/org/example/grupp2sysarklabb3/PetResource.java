@@ -31,7 +31,13 @@ public class PetResource {
     }
 
     @GET
-    public List<PetDTO> getPets() {
+    public List<PetDTO> getPets(
+            @QueryParam("sortBy") String sortBy,
+            @QueryParam("order") @DefaultValue("asc") String order) {
+        if (sortBy != null && !sortBy.isBlank()) {
+            return petService.listAllPetsSorted(sortBy, order);
+        }
+
         return petService.listAllPets();
     }
 

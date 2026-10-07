@@ -6,6 +6,7 @@ import jakarta.ws.rs.NotFoundException;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
@@ -43,6 +44,25 @@ public class PetService {
         } finally {
             lock.unlock();
         }
+    }
+
+    public List<PetDTO> listAllPetsSorted(String sortBy, String order) {
+        Comparator<PetDTO> comparator = switch(sortBy.toLowerCase(Locale.ROOT)) {
+            case "name" -> Comparator.comparing(PetDTO::name, String.CASE_INSENSITIVE_ORDER);
+            case "species" -> Comparator.comparing(PetDTO::species, String.CASE_INSENSITIVE_ORDER);
+            case "hunger" -> Comparator.comparingInt(PetDTO::hungerLevel);
+            case "happiness" -> Comparator.comparingInt(PetDTO::happiness);
+            case "id" -> Comparator.comparingLong(PetDTO::id);
+            default -> throw new BadRequestException("Invalid sortBy field: " + sortBy);
+        };
+
+        if(order.equalsIgnoreCase("desc")) {
+            comparator = comparator.reversed();
+        }
+        return pets.values()
+                .stream()
+                .sorted(comparator)
+                .toList();
     }
 
     public PetDTO viewPetStatus(Long petId) {
