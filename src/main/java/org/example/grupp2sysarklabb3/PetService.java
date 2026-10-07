@@ -107,6 +107,28 @@ public class PetService {
             lock.unlock();
           }
         }
+        public PetPageResponse listPets(int page,int size){
+        List<PetDTO> allPets = pets.values().stream()
+                .sorted(Comparator.comparing(PetDTO::id))
+                .toList();
+
+            long offset = (long) page * size;
+            int fromIndex = (int) Math.min(offset, allPets.size());
+            int toIndex = Math.min(fromIndex * size, allPets.size());
+
+            List<PetDTO> pageOfPets = allPets.subList(fromIndex, toIndex);
+            int totalPages = (int) Math.ceil((double) allPets.size() / size);
+
+            return new PetPageResponse(
+                    pageOfPets,
+                    page,
+                    size,
+                    allPets.size(),
+                    totalPages
+            );
+
+        }
+
 
     public void releasePet(Long petId) {
         if (!pets.containsKey(petId)) {
