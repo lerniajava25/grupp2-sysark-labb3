@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pet Shelter</title>
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: system-ui, sans-serif;
+            color: #242424;
+            background: #f5f7f4;
+        }
+
+        body {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        h1, h2 {
+            color: #244a37;
+        }
+
+        form, .toolbar, .pet-card {
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 1px solid #d3ded5;
+            border-radius: 10px;
+            background: white;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+        }
+
+        label {
+            display: grid;
+            gap: 0.35rem;
+        }
+
+        input, button {
+            box-sizing: border-box;
+            padding: 0.6rem 0.75rem;
+            border: 1px solid #aab9ad;
+            border-radius: 6px;
+            font: inherit;
+        }
+
+        button {
+            margin: 0.25rem;
+            color: white;
+            background: #316b49;
+            border-color: #316b49;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: end;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        #message {
+            min-height: 1.5em;
+        }
+
+        .error {
+            color: #b00020;
+        }
+
+        .pet-card h3 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Pet Shelter</h1>
+        <p id="message" role="status" aria-live="polite"></p>
+
+        <section aria-labelledby="adopt-heading">
+            <h2 id="adopt-heading">Adopt a pet</h2>
+            <form id="adopt-form">
+                <div class="form-grid">
+                    <label>
+                        Name
+                        <input name="name" required maxlength="100">
+                    </label>
+                    <label>
+                        Species
+                        <input name="species" required maxlength="100">
+                    </label>
+                    <label>
+                        Hunger (0–100)
+                        <input name="hungerLevel" type="number" min="0" max="100"
+                               value="50" required>
+                    </label>
+                    <label>
+                        Happiness (0–100)
+                        <input name="happiness" type="number" min="0" max="100"
+                               value="50" required>
+                    </label>
+                </div>
+                <button type="submit">Adopt pet</button>
+            </form>
+        </section>
+
+        <section aria-labelledby="pets-heading">
+            <h2 id="pets-heading">Pets</h2>
+            <div class="toolbar">
+                <label>
+                    Pets per page
+                    <input id="page-size" type="number" min="1" max="100" value="10">
+                </label>
+                <button id="previous-page" type="button">Previous</button>
+                <span id="page-info" aria-live="polite"></span>
+                <button id="next-page" type="button">Next</button>
+            </div>
+            <div id="pets-list"></div>
+        </section>
+    </main>
+
+    <script>
+        const API = new URL("api/pets", document.baseURI).toString().replace(/\/$/, "");
+        let currentPage = 0;
+
+        const message = document.querySelector("#message");
+        const petsList = document.querySelector("#pets-list");
+        const pageInfo = document.querySelector("#page-info");
+        const pageSizeInput = document.querySelector("#page-size");
+
+        async function request(path = "", options = {}) {
+            const response = await fetch(`${API}${path}`, options);
+
+            if (response.status === 204) {
+                return null;
+            }
+
+            const text = await response.text();
+            let data = text;
+            try {
+                data = text ? JSON.parse(text) : null;
+            } catch {
+                // Non-JSON responses are returned as plain text.
+            }
+
+            if (!response.ok) {
+                const detail = typeof data === "string" ? data : JSON.stringify(data);
+                throw new Error(detail || `Request failed (${response.status})`);
+            }
+            return data;
+        }
+
+        function showMessage(text, isError = false) {
+            message.textContent = text;
+            message.classList.toggle("error", isError);
+        }
+
+        function addActionButton(container, label, action, petId) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.textContent = label;
+            button.dataset.action = action;
+            button.dataset.id = petId;
+            container.append(button);
+        }
+
+        function renderPets(pets) {
+            petsList.replaceChildren();
+            if (pets.length === 0) {
+                petsList.textContent = "No pets on this page.";
+                return;
+            }
+
+            for (const pet of pets) {
+                const card = document.createElement("section");
+                card.className = "pet-card";
+
+                const title = document.createElement("h3");
+                title.textContent = `${pet.name} — ${pet.species} (#${pet.id})`;
+                const stats = document.createElement("p");
+                stats.textContent =
+                    `Hunger: ${pet.hungerLevel} · Happiness: ${pet.happiness}`;
+
+                card.append(title, stats);
+                addActionButton(card, "View status", "view", pet.id);
+                addActionButton(card, "Feed", "feed", pet.id);
+                addActionButton(card, "Play", "play", pet.id);
+                addActionButton(card, "Release", "release", pet.id);
+                petsList.append(card);
+            }
+        }
+
+        async function loadPets() {
+            const size = Number(pageSizeInput.value);
+            if (!Number.isInteger(size) || size < 1 || size > 100) {
+                showMessage("Page size must be between 1 and 100.", true);
+                return;
+            }
+
+            try {
+                const result = await request(`/page?page=${currentPage}&size=${size}`);
+
+                if (result.totalPages > 0 && currentPage >= result.totalPages) {
+                    currentPage = result.totalPages - 1;
+                    return loadPets();
+                }
+
+                renderPets(result.pets);
+                pageInfo.textContent =
+                    `Page ${result.totalPages === 0 ? 0 : currentPage + 1} of ${result.totalPages}`;
+                document.querySelector("#previous-page").disabled = currentPage <= 0;
+                document.querySelector("#next-page").disabled =
+                    result.totalPages === 0 || currentPage + 1 >= result.totalPages;
+                showMessage("");
+            } catch (error) {
+                showMessage(`Could not load pets: ${error.message}`, true);
+            }
+        }
+
+        document.querySelector("#adopt-form").addEventListener("submit", async event => {
+            event.preventDefault();
+            const adoptForm = event.currentTarget;
+            const form = new FormData(adoptForm);
+            const pet = {
+                name: form.get("name"),
+                species: form.get("species"),
+                hungerLevel: Number(form.get("hungerLevel")),
+                happiness: Number(form.get("happiness"))
+            };
+
+            try {
+                await request("", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(pet)
+                });
+                adoptForm.reset();
+                currentPage = 0;
+                showMessage("Pet adopted.");
+                await loadPets();
+            } catch (error) {
+                showMessage(`Could not adopt pet: ${error.message}`, true);
+            }
+        });
+
+        document.querySelector("#previous-page").addEventListener("click", () => {
+            if (currentPage > 0) {
+                currentPage--;
+                loadPets();
+            }
+        });
+
+        document.querySelector("#next-page").addEventListener("click", () => {
+            currentPage++;
+            loadPets();
+        });
+
+        pageSizeInput.addEventListener("change", () => {
+            currentPage = 0;
+            loadPets();
+        });
+
+        petsList.addEventListener("click", async event => {
+            const button = event.target.closest("button[data-action]");
+            if (!button) return;
+
+            const { id, action } = button.dataset;
+            try {
+                if (action === "view") {
+                    const pet = await request(`/${id}`);
+                    showMessage(
+                        `${pet.name} (${pet.species}): hunger ${pet.hungerLevel}, happiness ${pet.happiness}`
+                    );
+                } else if (action === "feed" || action === "play") {
+                    const pet = await request(`/${id}/${action}`, { method: "PUT" });
+                    showMessage(`${pet.name} updated.`);
+                    await loadPets();
+                } else if (action === "release") {
+                    if (!confirm("Release this pet?")) return;
+                    await request(`/${id}`, { method: "DELETE" });
+                    showMessage("Pet released.");
+                    await loadPets();
+                }
+            } catch (error) {
+                showMessage(`Action failed: ${error.message}`, true);
+            }
+        });
+
+        loadPets();
+    </script>
+</body>
+</html>
