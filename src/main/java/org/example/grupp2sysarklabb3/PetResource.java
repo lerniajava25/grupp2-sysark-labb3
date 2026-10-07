@@ -38,7 +38,7 @@ public class PetResource {
     @GET
     @Path("/page")
     @Produces(MediaType.APPLICATION_JSON)
-    public PetPageResponse geyPetsPage(
+    public PetPageResponse getPetsPage(
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("10") int size) {
 
