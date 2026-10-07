@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -30,7 +31,7 @@ public class PetService {
     }
 
     public List<PetDTO> listAllPetsSorted(String sortBy, String order) {
-        Comparator<PetDTO> comparator = switch(sortBy.toLowerCase()) {
+        Comparator<PetDTO> comparator = switch(sortBy.toLowerCase(Locale.ROOT)) {
             case "name" -> Comparator.comparing(PetDTO::name, String.CASE_INSENSITIVE_ORDER);
             case "species" -> Comparator.comparing(PetDTO::species, String.CASE_INSENSITIVE_ORDER);
             case "hunger" -> Comparator.comparingInt(PetDTO::hungerLevel);
