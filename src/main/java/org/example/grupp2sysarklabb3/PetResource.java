@@ -36,11 +36,11 @@ public class PetResource {
             @QueryParam("sortBy") String sortBy,
             @QueryParam("order") @DefaultValue("asc") String order) {
 
-        if(species != null && !species.isBlank()) {
+        if (species != null && !species.isBlank()) {
             return petService.listFilteredPets(species);
         }
 
-        if(sortBy != null && !sortBy.isBlank()) {
+        if (sortBy != null && !sortBy.isBlank()) {
             return petService.listAllPetsSorted(sortBy, order);
         }
 
@@ -54,7 +54,7 @@ public class PetResource {
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("10") int size) {
 
-        if (page < 0 || size < 1 || size < 100){
+        if (page < 0 || size < 1 || size < 100) {
             throw new BadRequestException(
                     "page must be 0 or greater; size must be between 1 and 100");
         }
@@ -106,18 +106,18 @@ public class PetResource {
 
     @DELETE
     @Path("/{id}")
-    public Response releasePet(@PathParam("id") Long id){
-    PetDTO pet = petService.viewPetStatus(id);
+    public Response releasePet(@PathParam("id") Long id) {
+        PetDTO pet = petService.viewPetStatus(id);
 
-    if (pet == null){
-        return Response.status(Response.Status.NOT_FOUND)
-                .entity("Pet not found")
-                .build();
-    }
+        if (pet == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Pet not found")
+                    .build();
+        }
 
-    petService.releasePet(id);
+        petService.releasePet(id);
 
-    return Response.noContent().build();
+        return Response.noContent().build();
 
     }
 }
